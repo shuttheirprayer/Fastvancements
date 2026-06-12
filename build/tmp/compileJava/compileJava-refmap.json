@@ -1,0 +1,44 @@
+{
+  "mappings": {
+    "com/misanthropy/linggango/fastvancements/mixin/AbstractContainerMenuMixin": {
+      "addSlot(Lnet/minecraft/world/inventory/Slot;)Lnet/minecraft/world/inventory/Slot;": "Lnet/minecraft/world/inventory/AbstractContainerMenu;m_38897_(Lnet/minecraft/world/inventory/Slot;)Lnet/minecraft/world/inventory/Slot;",
+      "triggerSlotListeners(ILnet/minecraft/world/item/ItemStack;Ljava/util/function/Supplier;)V": "Lnet/minecraft/world/inventory/AbstractContainerMenu;m_150407_(ILnet/minecraft/world/item/ItemStack;Ljava/util/function/Supplier;)V"
+    },
+    "com/misanthropy/linggango/fastvancements/mixin/InventoryChangeTriggerMixin": {
+      "trigger(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/item/ItemStack;)V": "Lnet/minecraft/advancements/critereon/InventoryChangeTrigger;m_43149_(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/item/ItemStack;)V"
+    },
+    "com/misanthropy/linggango/fastvancements/mixin/PlayerTriggerMixin": {
+      "trigger(Lnet/minecraft/server/level/ServerPlayer;)V": "Lnet/minecraft/advancements/critereon/PlayerTrigger;m_222618_(Lnet/minecraft/server/level/ServerPlayer;)V"
+    },
+    "com/misanthropy/linggango/fastvancements/mixin/InventoryChangeTriggerInstanceMixin": {
+      "Lnet/minecraft/world/entity/player/Inventory;getContainerSize()I": "Lnet/minecraft/world/entity/player/Inventory;m_6643_()I",
+      "matches(Lnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/item/ItemStack;III)Z": "Lnet/minecraft/advancements/critereon/InventoryChangeTrigger$TriggerInstance;m_43186_(Lnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/item/ItemStack;III)Z",
+      "Lnet/minecraft/advancements/critereon/ItemPredicate;matches(Lnet/minecraft/world/item/ItemStack;)Z": "Lnet/minecraft/advancements/critereon/ItemPredicate;m_45049_(Lnet/minecraft/world/item/ItemStack;)Z"
+    },
+    "com/misanthropy/linggango/fastvancements/mixin/SimpleCriterionTriggerAccessor": {
+      "players": "f_66232_:Ljava/util/Map;"
+    }
+  },
+  "data": {
+    "searge": {
+      "com/misanthropy/linggango/fastvancements/mixin/AbstractContainerMenuMixin": {
+        "addSlot(Lnet/minecraft/world/inventory/Slot;)Lnet/minecraft/world/inventory/Slot;": "Lnet/minecraft/world/inventory/AbstractContainerMenu;m_38897_(Lnet/minecraft/world/inventory/Slot;)Lnet/minecraft/world/inventory/Slot;",
+        "triggerSlotListeners(ILnet/minecraft/world/item/ItemStack;Ljava/util/function/Supplier;)V": "Lnet/minecraft/world/inventory/AbstractContainerMenu;m_150407_(ILnet/minecraft/world/item/ItemStack;Ljava/util/function/Supplier;)V"
+      },
+      "com/misanthropy/linggango/fastvancements/mixin/InventoryChangeTriggerMixin": {
+        "trigger(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/item/ItemStack;)V": "Lnet/minecraft/advancements/critereon/InventoryChangeTrigger;m_43149_(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/item/ItemStack;)V"
+      },
+      "com/misanthropy/linggango/fastvancements/mixin/PlayerTriggerMixin": {
+        "trigger(Lnet/minecraft/server/level/ServerPlayer;)V": "Lnet/minecraft/advancements/critereon/PlayerTrigger;m_222618_(Lnet/minecraft/server/level/ServerPlayer;)V"
+      },
+      "com/misanthropy/linggango/fastvancements/mixin/InventoryChangeTriggerInstanceMixin": {
+        "Lnet/minecraft/world/entity/player/Inventory;getContainerSize()I": "Lnet/minecraft/world/entity/player/Inventory;m_6643_()I",
+        "matches(Lnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/item/ItemStack;III)Z": "Lnet/minecraft/advancements/critereon/InventoryChangeTrigger$TriggerInstance;m_43186_(Lnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/item/ItemStack;III)Z",
+        "Lnet/minecraft/advancements/critereon/ItemPredicate;matches(Lnet/minecraft/world/item/ItemStack;)Z": "Lnet/minecraft/advancements/critereon/ItemPredicate;m_45049_(Lnet/minecraft/world/item/ItemStack;)Z"
+      },
+      "com/misanthropy/linggango/fastvancements/mixin/SimpleCriterionTriggerAccessor": {
+        "players": "f_66232_:Ljava/util/Map;"
+      }
+    }
+  }
+}

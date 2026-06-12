@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Specification-Title: fastvancements
+Specification-Vendor: Misanthropy, bigenergy, txni, Mephodio
+Specification-Version: 1
+Implementation-Title: fastvancements
+Implementation-Version: 1.0
+Implementation-Vendor: Misanthropy, bigenergy, txni, Mephodio
+Implementation-Timestamp: 2026-06-12T20:41:40+0300
+MixinConfigs: fastvancements.mixins.json
+

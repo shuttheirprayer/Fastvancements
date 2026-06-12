@@ -1,0 +1,31 @@
+modLoader = "javafml"
+loaderVersion = "[47,)"
+license = "GNU GPL 3.0"
+
+[[mods]]
+modId = "fastvancements"
+version = "1.0"
+displayName = "Fastvancements"
+authors = "Misanthropy, bigenergy, txni, Mephodio"
+description = '''
+Fastvancements is a zero-dependency performance mod that aggressively rewrites Minecraft's advancement engine.
+
+Features:
+- O(1) Reverse Indexing: Eliminates brute-force inventory scanning.
+- Efficient Tick Skipping: Throttles position and environment checking per player.
+- Zero Library Bloat: Pure, native performance without heavy framework wrappers.
+'''
+
+[[dependencies."fastvancements"]]
+modId = "forge"
+mandatory = true
+versionRange = "[47,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies."fastvancements"]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.1,1.21)"
+ordering = "NONE"
+side = "BOTH"
