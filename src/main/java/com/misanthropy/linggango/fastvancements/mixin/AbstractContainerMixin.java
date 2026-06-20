@@ -1,5 +1,6 @@
 package com.misanthropy.linggango.fastvancements.mixin;
 
+import com.misanthropy.linggango.fastvancements.core.FastvancementsConfig;
 import com.misanthropy.linggango.fastvancements.duck.FastDuck;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.player.Inventory;
@@ -21,8 +22,13 @@ abstract class AbstractContainerMenuMixin {
     @Redirect(method = "addSlot(Lnet/minecraft/world/inventory/Slot;)Lnet/minecraft/world/inventory/Slot;",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/core/NonNullList;add(Ljava/lang/Object;)Z", ordinal = 1))
     protected boolean addSlot(NonNullList<ItemStack> lastSlots, Object emptyStack, Slot slot) {
+        if (!FastvancementsConfig.containerMenuOpt) {
+            lastSlots.add(slot.getItem().copy());
+            return true;
+        }
+
         if (slot.container instanceof Inventory && slot.hasItem()) {
-            lastSlots.add(slot.getItem());
+            lastSlots.add(slot.getItem().copy());
         } else {
             lastSlots.add(ItemStack.EMPTY);
         }
@@ -33,6 +39,8 @@ abstract class AbstractContainerMenuMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/core/NonNullList;set(ILjava/lang/Object;)Ljava/lang/Object;", shift = At.Shift.AFTER),
             locals = LocalCapture.CAPTURE_FAILSOFT)
     private void triggerSlotListeners(int slotNumber, ItemStack newStack, Supplier<ItemStack> newStackSupplier, CallbackInfo ci, ItemStack oldStack, ItemStack newStack1) {
+        if (!FastvancementsConfig.containerMenuOpt) return;
+
         if (ItemStack.isSameItem(newStack1, oldStack)) {
             ((FastDuck.ItemStackDuck) (Object) newStack1).fastvancements$setPrevSize(oldStack.getCount());
         }

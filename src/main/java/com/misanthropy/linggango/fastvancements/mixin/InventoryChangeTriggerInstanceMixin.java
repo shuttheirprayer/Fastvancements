@@ -1,5 +1,6 @@
 package com.misanthropy.linggango.fastvancements.mixin;
 
+import com.misanthropy.linggango.fastvancements.core.FastvancementsConfig;
 import com.misanthropy.linggango.fastvancements.duck.FastDuck;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -31,6 +32,8 @@ abstract class InventoryChangeTriggerInstanceMixin implements FastDuck.TriggerIn
 
     @Override
     public boolean fastvancements$canFastFail(ItemStack stack) {
+        if (!FastvancementsConfig.fastItemMatching) return false;
+
         if (!fastvancements$analyzed) {
             fastvancements$analyzed = true;
             fastvancements$exactItems = new HashSet<>();
@@ -55,6 +58,8 @@ abstract class InventoryChangeTriggerInstanceMixin implements FastDuck.TriggerIn
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;getContainerSize()I", ordinal = 0),
             locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
     public void matches(Inventory inventory, ItemStack itemStack, int i, int j, int k, CallbackInfoReturnable<Boolean> cir, int predicatesLength, List<ItemPredicate> predicatesList) {
+        if (!FastvancementsConfig.fastItemMatching) return;
+
         if (!predicatesList.removeIf(itemPredicate -> itemPredicate.matches(itemStack))) {
             cir.setReturnValue(false);
             cir.cancel();
@@ -64,6 +69,9 @@ abstract class InventoryChangeTriggerInstanceMixin implements FastDuck.TriggerIn
     @Redirect(method = "matches(Lnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/item/ItemStack;III)Z",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/advancements/critereon/ItemPredicate;matches(Lnet/minecraft/world/item/ItemStack;)Z"))
     public boolean itemPredicateMatches(ItemPredicate itemPredicate, ItemStack itemStack) {
+        if (!FastvancementsConfig.fastItemMatching) {
+            return itemPredicate.matches(itemStack);
+        }
         return ((FastDuck.ItemPredicateDuck) itemPredicate).fastvancements$fastMatch(itemStack);
     }
 }

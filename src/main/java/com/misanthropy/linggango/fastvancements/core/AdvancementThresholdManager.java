@@ -11,8 +11,9 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.ItemStack;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -20,7 +21,7 @@ import java.util.TreeSet;
 public class AdvancementThresholdManager extends SimpleJsonResourceReloadListener {
 
     private static final Gson GSON = new GsonBuilder().create();
-    private static final SortedSet<Integer> THRESHOLDS = new TreeSet<>();
+    private static final SortedSet<Integer> THRESHOLDS = new TreeSet<>(Collections.singleton(1));
 
     public AdvancementThresholdManager() {
         super(GSON, "advancements");
@@ -44,7 +45,7 @@ public class AdvancementThresholdManager extends SimpleJsonResourceReloadListene
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> object, @NonNull ResourceManager manager, @NonNull ProfilerFiller profiler) {
+    protected void apply(Map<ResourceLocation, JsonElement> object, @NotNull ResourceManager manager, @NotNull ProfilerFiller profiler) {
         clear();
         String triggerId = CriteriaTriggers.INVENTORY_CHANGED.getId().toString();
 

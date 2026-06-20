@@ -1,5 +1,6 @@
 package com.misanthropy.linggango.fastvancements.mixin;
 
+import com.misanthropy.linggango.fastvancements.core.FastvancementsConfig;
 import net.minecraft.advancements.critereon.PlayerTrigger;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,12 +26,14 @@ public class PlayerTriggerMixin {
 
     @Inject(method = "trigger(Lnet/minecraft/server/level/ServerPlayer;)V", at = @At("HEAD"), cancellable = true)
     private void fastvancements$throttleTrigger(ServerPlayer player, CallbackInfo ci) {
+        if (!FastvancementsConfig.locationTickOpt) return;
+
         String triggerPath = this.id.getPath();
 
         if (triggerPath.equals("location") || triggerPath.equals("tick")) {
             int ticks = fastvancements$skipTicks.getOrDefault(player.getUUID(), 0);
 
-            if (ticks < 10) {
+            if (ticks < FastvancementsConfig.locationSkipTicks) {
                 fastvancements$skipTicks.put(player.getUUID(), ticks + 1);
                 ci.cancel();
             } else {

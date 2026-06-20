@@ -1,12 +1,14 @@
 package com.misanthropy.linggango.fastvancements.mixin;
 
 import com.misanthropy.linggango.fastvancements.core.AdvancementThresholdManager;
+import com.misanthropy.linggango.fastvancements.core.FastvancementsConfig;
 import com.misanthropy.linggango.fastvancements.duck.FastDuck;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -20,22 +22,25 @@ import java.util.*;
 abstract class InventoryChangeTriggerMixin {
 
     @Unique
-    private final Map<UUID, Map<String, Integer>> fastvancements$skipTicks = new HashMap<>();
+    private final Map<UUID, Map<Item, Integer>> fastvancements$skipTicks = new HashMap<>();
 
     @SuppressWarnings({"unchecked", "ConstantConditions"})
     @Inject(method = "trigger(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/item/ItemStack;)V",
             at = @At(value = "HEAD"), cancellable = true)
     public void trigger(ServerPlayer player, Inventory inv, ItemStack stack, CallbackInfo ci) {
-        Map<String, Integer> skipTickMap = fastvancements$skipTicks.computeIfAbsent(player.getUUID(), k -> new HashMap<>());
-        String itemName = stack.getItem().toString();
-        int skipTicks = skipTickMap.getOrDefault(itemName, 5);
+        if (!FastvancementsConfig.inventoryChangeOpt) return;
 
-        if (skipTicks < 4) {
-            skipTickMap.put(itemName, skipTicks + 1);
+        Map<Item, Integer> skipTickMap = fastvancements$skipTicks.computeIfAbsent(player.getUUID(), k -> new HashMap<>());
+
+        Item item = stack.getItem();
+        int skipTicks = skipTickMap.getOrDefault(item, FastvancementsConfig.inventorySkipTicks + 1);
+
+        if (skipTicks < FastvancementsConfig.inventorySkipTicks) {
+            skipTickMap.put(item, skipTicks + 1);
             ci.cancel();
             return;
         }
-        skipTickMap.put(itemName, 0);
+        skipTickMap.put(item, 0);
 
         if (stack.isEmpty()
                 || stack.getCount() < ((FastDuck.ItemStackDuck) (Object) stack).fastvancements$getPrevSize()
@@ -51,7 +56,7 @@ abstract class InventoryChangeTriggerMixin {
 
         if (listeners != null && !listeners.isEmpty()) {
             int full = 0, empty = 0, occ = 0;
-            for(int l = 0; l < inv.getContainerSize(); ++l) {
+            for (int l = 0; l < inv.getContainerSize(); ++l) {
                 ItemStack invStack = inv.getItem(l);
                 if (invStack.isEmpty()) { ++empty; }
                 else { ++occ; if (invStack.getCount() >= invStack.getMaxStackSize()) { ++full; } }
