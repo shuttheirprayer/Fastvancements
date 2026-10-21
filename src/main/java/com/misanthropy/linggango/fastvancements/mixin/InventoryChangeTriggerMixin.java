@@ -8,80 +8,66 @@ import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @Mixin(InventoryChangeTrigger.class)
 abstract class InventoryChangeTriggerMixin {
 
-    @Unique
-    private final Map<UUID, Map<Item, Integer>> fastvancements$skipTicks = new HashMap<>();
-
-    @SuppressWarnings({"unchecked", "ConstantConditions"})
+    @SuppressWarnings("unchecked")
     @Inject(method = "trigger(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/item/ItemStack;)V",
             at = @At(value = "HEAD"), cancellable = true)
     public void trigger(ServerPlayer player, Inventory inv, ItemStack stack, CallbackInfo ci) {
         if (!FastvancementsConfig.inventoryChangeOpt) return;
-
-        Map<Item, Integer> skipTickMap = fastvancements$skipTicks.computeIfAbsent(player.getUUID(), k -> new HashMap<>());
-
-        Item item = stack.getItem();
-        int skipTicks = skipTickMap.getOrDefault(item, FastvancementsConfig.inventorySkipTicks + 1);
-
-        if (skipTicks < FastvancementsConfig.inventorySkipTicks) {
-            skipTickMap.put(item, skipTicks + 1);
-            ci.cancel();
-            return;
-        }
-        skipTickMap.put(item, 0);
+        ci.cancel();
 
         if (stack.isEmpty()
                 || stack.getCount() < ((FastDuck.ItemStackDuck) (Object) stack).fastvancements$getPrevSize()
-                || !AdvancementThresholdManager.passesThreshold(stack)) {
-            ci.cancel();
-            return;
-        }
+                || !AdvancementThresholdManager.passesThreshold(stack)) return;
 
-        Map<PlayerAdvancements, Set<SimpleCriterionTrigger.Listener<InventoryChangeTrigger.TriggerInstance>>> playersMap =
-                ((SimpleCriterionTriggerAccessor<InventoryChangeTrigger.TriggerInstance>) this).fastvancements$getPlayers();
+        PlayerAdvancements advancements = player.getAdvancements();
+        Set<SimpleCriterionTrigger.Listener<InventoryChangeTrigger.TriggerInstance>> listeners =
+                ((SimpleCriterionTriggerAccessor<InventoryChangeTrigger.TriggerInstance>) this).fastvancements$getPlayers().get(advancements);
+        if (listeners == null || listeners.isEmpty()) return;
 
-        Set<SimpleCriterionTrigger.Listener<InventoryChangeTrigger.TriggerInstance>> listeners = playersMap.get(player.getAdvancements());
+        List<SimpleCriterionTrigger.Listener<InventoryChangeTrigger.TriggerInstance>> valid = null;
+        int full = 0, empty = 0, occupied = 0;
+        boolean counted = false;
 
-        if (listeners != null && !listeners.isEmpty()) {
-            int full = 0, empty = 0, occ = 0;
-            for (int l = 0; l < inv.getContainerSize(); ++l) {
-                ItemStack invStack = inv.getItem(l);
-                if (invStack.isEmpty()) { ++empty; }
-                else { ++occ; if (invStack.getCount() >= invStack.getMaxStackSize()) { ++full; } }
+        for (SimpleCriterionTrigger.Listener<InventoryChangeTrigger.TriggerInstance> listener : listeners) {
+            InventoryChangeTrigger.TriggerInstance instance = listener.getTriggerInstance();
+            if (((FastDuck.TriggerInstanceDuck) instance).fastvancements$canFastFail(stack)) continue;
+
+            if (!counted) {
+                counted = true;
+                int size = inv.getContainerSize();
+                for (int slot = 0; slot < size; ++slot) {
+                    ItemStack invStack = inv.getItem(slot);
+                    if (!invStack.isEmpty()) {
+                        ++occupied;
+                        if (invStack.getCount() >= invStack.getMaxStackSize()) ++full;
+                    }
+                }
+                empty = size - occupied;
             }
 
-            List<SimpleCriterionTrigger.Listener<InventoryChangeTrigger.TriggerInstance>> validListeners = null;
-
-            for (SimpleCriterionTrigger.Listener<InventoryChangeTrigger.TriggerInstance> listener : listeners) {
-                InventoryChangeTrigger.TriggerInstance instance = listener.getTriggerInstance();
-
-                if (((FastDuck.TriggerInstanceDuck) instance).fastvancements$canFastFail(stack)) continue;
-
-                if (instance.matches(inv, stack, full, empty, occ)) {
-                    if (validListeners == null) validListeners = new ArrayList<>();
-                    validListeners.add(listener);
-                }
-            }
-
-            if (validListeners != null) {
-                for (SimpleCriterionTrigger.Listener<InventoryChangeTrigger.TriggerInstance> listener : validListeners) {
-                    listener.run(player.getAdvancements());
-                }
+            if (instance.matches(inv, stack, full, empty, occupied)) {
+                if (valid == null) valid = new ArrayList<>();
+                valid.add(listener);
             }
         }
 
-        ci.cancel();
+        if (valid != null) {
+            for (SimpleCriterionTrigger.Listener<InventoryChangeTrigger.TriggerInstance> listener : valid) {
+                listener.run(advancements);
+            }
+        }
     }
 }

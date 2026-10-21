@@ -13,7 +13,6 @@ public class FastvancementsConfig {
 
     public static boolean containerMenuOpt = true;
     public static boolean inventoryChangeOpt = true;
-    public static int inventorySkipTicks = 4;
     public static boolean locationTickOpt = true;
     public static int locationSkipTicks = 10;
     public static boolean fastItemMatching = true;
@@ -29,7 +28,6 @@ public class FastvancementsConfig {
         if (event.getConfig().getSpec() == COMMON_SPEC) {
             containerMenuOpt = COMMON.enableContainerMenuOptimization.get();
             inventoryChangeOpt = COMMON.enableInventoryChangeOptimization.get();
-            inventorySkipTicks = COMMON.inventoryChangeSkipTicks.get();
             locationTickOpt = COMMON.enableLocationTickOptimization.get();
             locationSkipTicks = COMMON.locationTickSkipTicks.get();
             fastItemMatching = COMMON.enableFastItemMatching.get();
@@ -39,7 +37,6 @@ public class FastvancementsConfig {
     public static class Common {
         public final ForgeConfigSpec.BooleanValue enableContainerMenuOptimization;
         public final ForgeConfigSpec.BooleanValue enableInventoryChangeOptimization;
-        public final ForgeConfigSpec.IntValue inventoryChangeSkipTicks;
         public final ForgeConfigSpec.BooleanValue enableLocationTickOptimization;
         public final ForgeConfigSpec.IntValue locationTickSkipTicks;
         public final ForgeConfigSpec.BooleanValue enableFastItemMatching;
@@ -54,10 +51,6 @@ public class FastvancementsConfig {
             enableInventoryChangeOptimization = builder
                     .comment("Enable optimized inventory change triggers.")
                     .define("enableInventoryChangeOptimization", true);
-
-            inventoryChangeSkipTicks = builder
-                    .comment("Ticks to skip between inventory checks. Vanilla is 0 (Default: 4).")
-                    .defineInRange("inventoryChangeSkipTicks", 4, 0, 1200);
 
             enableLocationTickOptimization = builder
                     .comment("Enable optimized location and tick triggers.")

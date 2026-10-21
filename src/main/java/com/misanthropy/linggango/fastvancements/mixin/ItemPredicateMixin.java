@@ -34,19 +34,9 @@ public abstract class ItemPredicateMixin implements FastDuck.ItemPredicateDuck {
     @Final @Shadow private NbtPredicate nbt;
 
     @Unique
-    private boolean fastvancements$checkEnchantments(ItemStack itemStack, EnchantmentPredicate[] enchantments) {
-        Map<Enchantment, Integer> map = itemStack.getAllEnchantments();
-        for (EnchantmentPredicate p : enchantments) {
-            if (!p.containedIn(map)) return false;
-        }
-        return true;
-    }
-
-    @Unique
-    private boolean fastvancements$checkStoredEnchantments(ItemStack itemStack, EnchantmentPredicate[] storedEnchantments) {
-        Map<Enchantment, Integer> map = EnchantmentHelper.deserializeEnchantments(EnchantedBookItem.getEnchantments(itemStack));
-        for (EnchantmentPredicate p : storedEnchantments) {
-            if (!p.containedIn(map)) return false;
+    private static boolean fastvancements$allContainedIn(EnchantmentPredicate[] predicates, Map<Enchantment, Integer> present) {
+        for (EnchantmentPredicate p : predicates) {
+            if (!p.containedIn(present)) return false;
         }
         return true;
     }
@@ -54,22 +44,14 @@ public abstract class ItemPredicateMixin implements FastDuck.ItemPredicateDuck {
     @Override
     public boolean fastvancements$fastMatch(ItemStack itemStack) {
         if ((Object) this == ItemPredicate.ANY) return true;
-
-        Integer minThr = count.getMin();
-        Integer maxThr = count.getMax();
-        int stackCount = itemStack.getCount();
-        int prevStackCount = ((FastDuck.ItemStackDuck) (Object) itemStack).fastvancements$getPrevSize();
-
-        if (minThr == null ? prevStackCount != 0 : (prevStackCount >= minThr || minThr > stackCount)) return false;
-        if (maxThr != null && stackCount > maxThr) return false;
-
+        if (((Object) this).getClass() != ItemPredicate.class) return ((ItemPredicate) (Object) this).matches(itemStack);
         if (this.tag != null && !itemStack.is(this.tag)) return false;
         if (this.items != null && !this.items.contains(itemStack.getItem())) return false;
-        if (!this.count.matches(stackCount)) return false;
+        if (!this.count.matches(itemStack.getCount())) return false;
         if (!this.durability.isAny() && (!itemStack.isDamageableItem() || !this.durability.matches(itemStack.getMaxDamage() - itemStack.getDamageValue()))) return false;
         if (!this.nbt.matches(itemStack)) return false;
-        if (this.enchantments.length > 0 && !fastvancements$checkEnchantments(itemStack, this.enchantments)) return false;
-        if (this.storedEnchantments.length > 0 && !fastvancements$checkStoredEnchantments(itemStack, this.storedEnchantments)) return false;
+        if (this.enchantments.length > 0 && !fastvancements$allContainedIn(this.enchantments, itemStack.getAllEnchantments())) return false;
+        if (this.storedEnchantments.length > 0 && !fastvancements$allContainedIn(this.storedEnchantments, EnchantmentHelper.deserializeEnchantments(EnchantedBookItem.getEnchantments(itemStack)))) return false;
         return this.potion == null || this.potion == PotionUtils.getPotion(itemStack);
     }
 
@@ -80,6 +62,6 @@ public abstract class ItemPredicateMixin implements FastDuck.ItemPredicateDuck {
 
     @Override
     public boolean fastvancements$isComplex() {
-        return this.tag != null || this.nbt != NbtPredicate.ANY || this.enchantments.length > 0 || this.storedEnchantments.length > 0 || this.potion != null;
+        return ((Object) this).getClass() != ItemPredicate.class || this.tag != null || this.nbt != NbtPredicate.ANY || this.enchantments.length > 0 || this.storedEnchantments.length > 0 || this.potion != null;
     }
 }

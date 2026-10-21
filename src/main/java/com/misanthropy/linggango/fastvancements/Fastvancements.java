@@ -2,8 +2,10 @@ package com.misanthropy.linggango.fastvancements;
 
 import com.misanthropy.linggango.fastvancements.core.AdvancementThresholdManager;
 import com.misanthropy.linggango.fastvancements.core.FastvancementsConfig;
+import com.misanthropy.linggango.fastvancements.core.ThrottleMaps;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -22,5 +24,10 @@ public class Fastvancements {
     @SubscribeEvent
     public void onAddReloadListeners(AddReloadListenerEvent event) {
         event.addListener(new AdvancementThresholdManager());
+    }
+
+    @SubscribeEvent
+    public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        ThrottleMaps.purge(event.getEntity().getUUID());
     }
 }
